@@ -1,0 +1,188 @@
+{
+  "name": "Intership Oppurtunity Scanner",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        0
+      ],
+      "id": "6938963c-cd55-41bc-bc30-3890e886b8c7",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "-5551921610",
+        "text": "={{$json.message}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "b4f613ad-3589-4f3c-825f-b2f4d2677ad0",
+      "name": "Send a text message",
+      "webhookId": "11414bdc-8ff5-45e0-99ac-78b38d4f3e00",
+      "credentials": {
+        "telegramApi": {
+          "id": "2n9zoN4d5thNxAyO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://internshala.com/internships/artificial-intelligence-ai,cloud-computing,cyber-security,data-science,java,machine-learning,python-django,software-development,software-testing,web-development-internship",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -208,
+        0
+      ],
+      "id": "5d657951-a0fc-4d6e-aeac-b537a9cb0141",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "title",
+              "cssSelector": ".job-title-href",
+              "returnArray": true
+            },
+            {
+              "key": "company",
+              "cssSelector": "p.company-name",
+              "returnArray": true
+            },
+            {
+              "key": "stipend",
+              "cssSelector": "span.stipend",
+              "returnArray": true
+            },
+            {
+              "key": "link",
+              "cssSelector": ".job-title-href",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "783e184e-b177-462e-905b-dd2ad4ee875c",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "jsCode": "const html = $('HTML').first().json;\n\nconst titles = Array.isArray(html.title) ? html.title : [html.title];\nconst companies = Array.isArray(html.company) ? html.company : [html.company];\nconst stipends = Array.isArray(html.stipend) ? html.stipend : [html.stipend];\nconst links = Array.isArray(html.link) ? html.link : [html.link];\n\nconst results = [];\n\nfor (let i = 0; i < Math.min(2, titles.length); i++) {\n  const title = String(titles[i] || 'Unknown').substring(0, 45).trim();\n  const company = String(companies[i] || 'N/A').split('\\n')[0].substring(0, 35).trim();\n  const stipend = String(stipends[i] || 'Check site').substring(0, 25).trim();\n  const link = String(links[i] || 'internshala.com/internships').trim();\n\n  const message = `🔥 New Internship Alert!\n\n💼 Role: ${title}\n🏢 Company: ${company}\n💰 Stipend: ${stipend}\n🔗 ${link}\n\n⚡ Apply before others do!`;\n\n  results.push({ json: { message } });\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e0a4c264-5426-4b2d-ae70-44c4b9667ff5",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "876ce02e-f27b-421a-937c-8c875b45f9f4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c985e5e2ca3b2738f4f06aa6614cb46b3e96b26a3ef8463f6ee881352622a850"
+  },
+  "nodeGroups": [],
+  "id": "Fub3qFtSmIZy0oO7",
+  "tags": []
+}
